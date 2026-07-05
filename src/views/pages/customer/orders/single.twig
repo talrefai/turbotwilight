@@ -63,6 +63,9 @@
 | order.rating                     | ?OrderRatings                     |                                                                                          |
 | order.rating.store               | ?Rating                           |                                                                                          |
 | order.rating.shipping            | ?Rating                           |                                                                                          |
+| order.rating.product             | Rating[]                          | Product ratings matched by `rating.product.id`                                           |
+| order.rating.product[].images    | array                             |                                                                                          |
+| order.rating.product[].videos    | array                             |                                                                                          |
 | order.links                      | array                             |                                                                                          |
 | order.links[].url                | string                            |                                                                                          |
 | order.links[].label              | string                            |                                                                                          |
@@ -313,72 +316,73 @@
                             {% if item.attachments %}
                                 <div class="flow-root rounded-md px-4 border border-gray-200">
                                     <dl class="text-sm text-dark divide-y divide-border-color">
-                                        {% for attachment in item.attachments %}
-                                            <div class="py-3.5 md:flex items-center justify-between">
-                                                <dt class="mb-2 md:mb-0">
-                                                    {{ trans('pages.products.attachments') }}
-                                                </dt>
-                                                <dd class="font-medium {{ attachment.type == 'image' ? 'text-gray-900' : 'text-xs' }}">
-                                                    <a href="{{ attachment.url }}">
-                                                        {% if attachment.type == 'image' %}
-                                                            <div class="flex rtl:space-x-reverse space-x-2.5">
-                                                                <a href="{{ attachment.url }}" target="_blank">
-                                                                    <img class="h-7 w-7 object-cover rounded-md"
-                                                                         src="{{ attachment.url }}"
-                                                                         alt="{{ item.name }}"/>
-                                                                </a>
-                                                            </div>
-                                                        {% else %}
+                                        <div class="py-3.5 md:flex items-center justify-between">
+                                            <dt class="mb-2 md:mb-0">
+                                                {{ trans('pages.products.attachments') }}
+                                            </dt>
+                                            <dd class="font-medium text-gray-900">
+                                                <salla-attachments attachments="{{ item.attachments|json_encode }}"></salla-attachments>
+                                                {% for attachment in item.attachments %}
+                                                    {% if attachment.type != 'image' and attachment.type != 'video' %}
+                                                        <a href="{{ attachment.url }}" class="text-xs">
                                                             {{ trans('pages.orders.file_url') }}
-                                                        {% endif %}
-                                                    </a>
-                                                </dd>
-                                            </div>
-                                        {% endfor %}
+                                                        </a>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </dd>
+                                        </div>
                                     </dl>
                                 </div>
                             {% endif %}
                             
-                            {% if item.rating %}
+                            {% set order_product_ratings = order.rating.product|default(order.rating.products|default([])) %}
+                            {% set product_rating = null %}
+                            {% for rating in order_product_ratings %}
+                                {% if item.product and rating.product.id == item.product.id %}
+                                    {% set product_rating = rating %}
+                                {% endif %}
+                            {% endfor %}
+                            {% set item_rating = product_rating|default(item.rating|default(null)) %}
+
+                            {% if item_rating %}
                                 <section class="flex justify-between items-start border-t mt-10 pt-8">
                                     <div>
-                                        <p>{{ item.rating.content|raw }}</p>
-                                        {% if item.rating.is_pending %}
+                                        <p>{{ item_rating.content|raw }}</p>
+                                        {% if item_rating.is_pending %}
                                             <span>{{ trans('pages.rating.pending') }}</span>
                                         {% endif %}
-                                        <salla-rating-stars with-label size="small" value="{{item.rating.stars}}"></salla-rating-stars>
-                                        {% if item.rating.images|length %}
-                                            <div class="flex items-center gap-2 mt-2">
-                                                {% for image in item.rating.images %}
-                                                    <img class="w-20 h-20 object-cover rounded-md" src="{{image}}"/>
-                                                {% endfor %}
+                                        <salla-rating-stars with-label size="small" value="{{ item_rating.stars }}"></salla-rating-stars>
+                                        {% set rating_attachments = item_rating.images|default([])|map((image) => { type: 'image', url: image })|merge(item_rating.videos|default([])|map((video) => { type: 'video', url: video })) %}
+                                        {% if rating_attachments|length %}
+                                            <div class="mt-2">
+                                                <salla-attachments attachments="{{ rating_attachments|json_encode }}"></salla-attachments>
                                             </div>
                                         {% endif %}
                                     </div>
                                     <div class="rating-actions">
                                         {% if store.settings.rating.allow_update %}
                                             <div class="tooltip-toggle tooltip-toggle--hover icon-trigger mobile-shifted">
-                                                {% if not item.rating.can_update %}
+                                                {% if not item_rating.can_update %}
                                                     <div class="tooltip-content shadow-md rounded">
                                                         <small> {{trans('pages.order.edit_period_ended')}}.</small>
                                                     </div>
                                                 {% endif %}
                                                 <salla-button 
                                                     loader-position="center" 
-                                                    {% if not item.rating.can_update %} disabled {% endif %} 
+                                                    {% if not item_rating.can_update %} disabled {% endif %} 
                                                     shape="icon" 
                                                     fill="outline" 
                                                     color="dark" 
                                                     size="medium" 
-                                                    {% if item.rating.can_update %} 
-                                                        onclick="salla.event.dispatch('rating::edit', {type: 'product', feedback_id: '{{item.rating.id}}' })"
+                                                    {% if item_rating.can_update %} 
+                                                        onclick="salla.event.dispatch('rating::edit', {type: 'product', feedback_id: '{{ item_rating.id }}' })"
                                                     {% endif %} 
                                                     >
                                                     <i class="sicon-format-border-color text-xl"></i>
                                                 </salla-button>
                                             </div>
                                             <div class="tooltip-toggle tooltip-toggle--hover icon-trigger mobile-shifted">
-                                                {% if not item.rating.can_update %}
+                                                {% if not item_rating.can_update %}
                                                     <div class="tooltip-content shadow-md rounded">
                                                         <small> {{trans('pages.order.delete_period_ended')}}.</small>
                                                     </div>
@@ -386,12 +390,12 @@
                                                 <salla-button 
                                                     loader-position="center" 
                                                     shape="icon" 
-                                                    {% if not item.rating.can_update %} disabled {% endif %} 
+                                                    {% if not item_rating.can_update %} disabled {% endif %} 
                                                     color="danger" 
                                                     fill="outline" 
                                                     size="medium" 
-                                                    {% if item.rating.can_update %}
-                                                        onclick="salla.event.dispatch('rating::delete', {feedback_id: '{{item.rating.id}}' })"
+                                                    {% if item_rating.can_update %}
+                                                        onclick="salla.event.dispatch('rating::delete', {feedback_id: '{{ item_rating.id }}' })"
                                                     {% endif %} 
                                                     >
                                                     <i class="sicon-trash-2 text-xl"></i>
