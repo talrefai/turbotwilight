@@ -1,0 +1,186 @@
+/*
+ * TurboTwilight — Aurix dark-first skin
+ * Layered on top of Theme Raed. Loaded last from app.scss.
+ *
+ * Design system: dark "Linear/Vercel" aesthetic — deep backgrounds,
+ * hairline borders, soft accent glows, large radii, GPU-only animations.
+ * The store's primary color (set by the merchant) is kept as the accent.
+ */
+
+:root {
+  --ax-bg: #07070b;
+  --ax-bg-elev: #0d0d14;
+  --ax-card: rgba(255, 255, 255, 0.03);
+  --ax-card-hover: rgba(255, 255, 255, 0.055);
+  --ax-border: rgba(255, 255, 255, 0.08);
+  --ax-border-strong: rgba(255, 255, 255, 0.15);
+  --ax-text: #f4f4f6;
+  --ax-text-2: #a3a3b2;
+  --ax-text-3: #6b6b7b;
+  --ax-radius: 14px;
+  --ax-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  /* Fall back to Aurix purple when the store has no primary color set. */
+  --color-primary: var(--store-primary, #7c6cff);
+}
+
+/* ---------- Base ---------- */
+body.theme-raed {
+  background-color: var(--ax-bg);
+  color: var(--ax-text-2);
+}
+
+body.theme-raed h1,
+body.theme-raed h2,
+body.theme-raed h3,
+body.theme-raed h4 {
+  color: var(--ax-text);
+  letter-spacing: -0.02em;
+}
+
+::selection {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+/* ---------- Utility remaps (Raed uses Tailwind utilities in the DOM) ---------- */
+body.theme-raed .bg-white { background-color: var(--ax-bg-elev) !important; }
+body.theme-raed .bg-gray-50,
+body.theme-raed .bg-gray-100 { background-color: var(--ax-card) !important; }
+body.theme-raed .text-gray-800,
+body.theme-raed .text-gray-900,
+body.theme-raed .text-black { color: var(--ax-text) !important; }
+body.theme-raed .text-gray-500,
+body.theme-raed .text-gray-600,
+body.theme-raed .text-gray-700 { color: var(--ax-text-2) !important; }
+body.theme-raed .text-gray-400 { color: var(--ax-text-3) !important; }
+body.theme-raed .border,
+body.theme-raed .border-gray-100,
+body.theme-raed .border-gray-200,
+body.theme-raed .border-gray-300 { border-color: var(--ax-border) !important; }
+body.theme-raed .shadow,
+body.theme-raed .shadow-md,
+body.theme-raed .shadow-sm {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 16px 44px -18px rgba(0, 0, 0, 0.55) !important;
+}
+
+/* ---------- Header ---------- */
+body.theme-raed .store-header,
+body.theme-raed header.store-header {
+  background: rgba(7, 7, 11, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--ax-border);
+}
+
+/* ---------- Cards: products, entries, blocks ---------- */
+body.theme-raed .product-entry,
+body.theme-raed .s-block,
+body.theme-raed .card {
+  background: var(--ax-card);
+  border: 1px solid var(--ax-border);
+  border-radius: var(--ax-radius);
+  transition: border-color 200ms ease, background 200ms ease, transform 250ms var(--ax-ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  body.theme-raed .product-entry:hover,
+  body.theme-raed .card:hover {
+    border-color: var(--ax-border-strong);
+    background: var(--ax-card-hover);
+  }
+}
+
+body.theme-raed .product-entry img {
+  border-radius: calc(var(--ax-radius) - 4px);
+}
+
+/* ---------- Buttons ---------- */
+body.theme-raed .s-button-element,
+body.theme-raed button[class*="btn"],
+body.theme-raed .btn {
+  border-radius: 12px;
+  transition: transform 160ms var(--ax-ease-out), box-shadow 200ms ease;
+}
+
+body.theme-raed .s-button-element:active,
+body.theme-raed .btn:active {
+  transform: scale(0.97);
+}
+
+body.theme-raed .btn--primary,
+body.theme-raed .s-button-primary {
+  background: linear-gradient(135deg, var(--color-primary), color-mix(in srgb, var(--color-primary) 70%, #ffffff 8%));
+  box-shadow: 0 8px 24px -8px color-mix(in srgb, var(--color-primary) 40%, transparent);
+}
+
+/* ---------- Forms ---------- */
+body.theme-raed input[type="text"],
+body.theme-raed input[type="email"],
+body.theme-raed input[type="tel"],
+body.theme-raed input[type="number"],
+body.theme-raed input[type="search"],
+body.theme-raed select,
+body.theme-raed textarea {
+  background: var(--ax-card);
+  border: 1px solid var(--ax-border-strong);
+  border-radius: 10px;
+  color: var(--ax-text);
+}
+
+body.theme-raed input:focus,
+body.theme-raed select:focus,
+body.theme-raed textarea:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+/* ---------- Footer ---------- */
+body.theme-raed .store-footer,
+body.theme-raed footer {
+  background: var(--ax-bg);
+  border-top: 1px solid var(--ax-border);
+}
+
+/* ---------- Home hero glow ---------- */
+body.theme-raed .s-block--hero,
+body.theme-raed .home-slider {
+  position: relative;
+}
+
+body.theme-raed .s-block--hero::before {
+  content: "";
+  position: absolute;
+  top: -180px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  height: 480px;
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--color-primary) 22%, transparent),
+    transparent
+  );
+  filter: blur(24px);
+  z-index: 0;
+}
+
+/* ---------- Reveal-on-scroll (added by aurix.js) ---------- */
+body.theme-raed .ax-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 550ms var(--ax-ease-out), transform 550ms var(--ax-ease-out);
+}
+
+body.theme-raed .ax-reveal.ax-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.theme-raed .ax-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

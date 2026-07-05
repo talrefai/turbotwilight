@@ -93,3 +93,6 @@
 
 @import 'lite-youtube-embed/src/lite-yt-embed.css';
 @import 'mmenu-light/dist/mmenu-light.css';
+
+// Aurix dark-first skin (TurboTwilight) — keep last so it wins the cascade
+@import "./aurix";
