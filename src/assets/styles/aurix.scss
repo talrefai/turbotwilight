@@ -1,10 +1,10 @@
 /*
- * TurboTwilight — Aurix dark-first skin
+ * TurboTwilight — Aurix dark-first skin v2
  * Layered on top of Theme Raed. Loaded last from app.scss.
  *
- * Design system: dark "Linear/Vercel" aesthetic — deep backgrounds,
- * hairline borders, soft accent glows, large radii, GPU-only animations.
- * The store's primary color (set by the merchant) is kept as the accent.
+ * Design system: dark premium aesthetic — deep backgrounds, hairline
+ * borders, soft accent glows, large radii, GPU-only animations.
+ * The merchant's primary color is kept as the accent.
  */
 
 :root {
@@ -17,8 +17,10 @@
   --ax-text: #f4f4f6;
   --ax-text-2: #a3a3b2;
   --ax-text-3: #6b6b7b;
+  --ax-success: #4dd8c0;
   --ax-radius: 14px;
   --ax-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ax-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   /* Fall back to Aurix purple when the store has no primary color set. */
   --color-primary: var(--store-primary, #7c6cff);
 }
@@ -40,6 +42,21 @@ body.theme-raed h4 {
 ::selection {
   background: var(--color-primary);
   color: #fff;
+}
+
+/* Keyboard a11y: visible focus ring everywhere */
+body.theme-raed :focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Section titles — bigger, tighter, premium */
+body.theme-raed .s-block__title h2,
+body.theme-raed .s-block .section-title {
+  font-size: clamp(22px, 3vw, 32px);
+  font-weight: 800;
+  letter-spacing: -0.025em;
 }
 
 /* ---------- Utility remaps (Raed uses Tailwind utilities in the DOM) ---------- */
@@ -72,26 +89,174 @@ body.theme-raed header.store-header {
   border-bottom: 1px solid var(--ax-border);
 }
 
-/* ---------- Cards: products, entries, blocks ---------- */
-body.theme-raed .product-entry,
-body.theme-raed .s-block,
-body.theme-raed .card {
+/* ---------- Hero slider: cinematic ---------- */
+body.theme-raed .s-block--hero-slider .swiper-slide .overlay-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(7, 7, 11, 0.25) 0%, rgba(7, 7, 11, 0.05) 40%, rgba(7, 7, 11, 0.72) 100%),
+    radial-gradient(90% 60% at 50% 100%, color-mix(in srgb, var(--color-primary) 18%, transparent), transparent 70%);
+  pointer-events: none;
+}
+
+body.theme-raed .s-block--hero-slider .home-slider__content h2 {
+  font-size: clamp(30px, 5vw, 56px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45);
+}
+
+body.theme-raed .s-block--hero-slider .home-slider__content .description {
+  font-size: clamp(15px, 1.6vw, 19px);
+  opacity: 0.92;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.5);
+}
+
+body.theme-raed .s-block--hero-slider .home-slider__content a[class*="btn"],
+body.theme-raed .s-block--hero-slider .home-slider__content .s-button-element {
+  border-radius: 999px;
+  padding-inline: 28px;
+  box-shadow: 0 10px 30px -8px color-mix(in srgb, var(--color-primary) 55%, transparent);
+}
+
+/* ---------- Product cards ---------- */
+body.theme-raed .s-product-card-entry {
   background: var(--ax-card);
   border: 1px solid var(--ax-border);
   border-radius: var(--ax-radius);
+  overflow: hidden;
+  transition: border-color 200ms ease, background 200ms ease,
+    transform 300ms var(--ax-ease-out), box-shadow 300ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  body.theme-raed .s-product-card-entry:hover {
+    border-color: var(--ax-border-strong);
+    background: var(--ax-card-hover);
+    transform: translateY(-4px);
+    box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.65),
+      0 0 0 1px color-mix(in srgb, var(--color-primary) 18%, transparent);
+  }
+
+  /* Slow, subtle image zoom on hover — transform only, GPU-accelerated */
+  body.theme-raed .s-product-card-entry:hover .s-product-card-image img {
+    transform: scale(1.045);
+  }
+}
+
+body.theme-raed .s-product-card-image {
+  overflow: hidden;
+}
+
+body.theme-raed .s-product-card-image img {
+  transition: transform 600ms var(--ax-ease-in-out);
+  transform-origin: center;
+}
+
+/* Prices: sale price pops, old price whispers */
+body.theme-raed .s-product-card-price,
+body.theme-raed .s-product-card-starting-price {
+  color: var(--ax-text);
+  font-weight: 700;
+}
+
+body.theme-raed .s-product-card-sale-price h4,
+body.theme-raed .s-product-card-sale-price strong,
+body.theme-raed .s-product-card-sale-price span:first-child {
+  color: var(--ax-success);
+  font-weight: 800;
+}
+
+body.theme-raed .s-product-card-sale-price del,
+body.theme-raed .s-product-card-sale-price .line-through,
+body.theme-raed .s-product-card-sale-price span + span {
+  color: var(--ax-text-3);
+  font-weight: 500;
+}
+
+/* Promotion / badges */
+body.theme-raed .s-product-card-promotion-title {
+  background: linear-gradient(135deg, var(--color-primary), color-mix(in srgb, var(--color-primary) 60%, #ff7ac2 40%));
+  color: #fff;
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  box-shadow: 0 6px 18px -6px color-mix(in srgb, var(--color-primary) 60%, transparent);
+}
+
+body.theme-raed .s-product-card-out-badge {
+  background: rgba(7, 7, 11, 0.8);
+  backdrop-filter: blur(6px);
+  color: var(--ax-text-2);
+  border: 1px solid var(--ax-border-strong);
+  border-radius: 999px;
+}
+
+/* Wishlist button: frosted glass */
+body.theme-raed salla-button.s-product-card-wishlist-btn button,
+body.theme-raed .s-product-card-wishlist-btn {
+  background: rgba(13, 13, 20, 0.66);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--ax-border-strong);
+  transition: transform 160ms var(--ax-ease-out), background 150ms ease;
+}
+
+body.theme-raed .s-product-card-wishlist-btn:active {
+  transform: scale(0.94);
+}
+
+/* Legacy card markup */
+body.theme-raed .product-entry {
+  background: var(--ax-card);
+  border: 1px solid var(--ax-border);
+  border-radius: var(--ax-radius);
+  transition: border-color 200ms ease, background 200ms ease, transform 300ms var(--ax-ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  body.theme-raed .product-entry:hover {
+    border-color: var(--ax-border-strong);
+    transform: translateY(-4px);
+  }
+}
+
+/* ---------- Generic blocks & cards ---------- */
+body.theme-raed .s-block,
+body.theme-raed .card {
+  border-radius: var(--ax-radius);
+}
+
+/* ---------- Store features: icon cards with glow hover ---------- */
+body.theme-raed .s-block--features__item {
+  background: var(--ax-card);
+  border: 1px solid var(--ax-border);
+  border-radius: var(--ax-radius);
+  padding: 22px;
   transition: border-color 200ms ease, background 200ms ease, transform 250ms var(--ax-ease-out);
 }
 
 @media (hover: hover) and (pointer: fine) {
-  body.theme-raed .product-entry:hover,
-  body.theme-raed .card:hover {
-    border-color: var(--ax-border-strong);
+  body.theme-raed .s-block--features__item:hover {
+    border-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
     background: var(--ax-card-hover);
+    transform: translateY(-3px);
   }
 }
 
-body.theme-raed .product-entry img {
-  border-radius: calc(var(--ax-radius) - 4px);
+body.theme-raed .s-block--features__item i,
+body.theme-raed .s-block--features__item svg {
+  color: var(--color-primary);
+}
+
+/* ---------- Testimonials ---------- */
+body.theme-raed .s-block--testimonials .swiper-slide > div,
+body.theme-raed .testimonial-entry {
+  background: var(--ax-card);
+  border: 1px solid var(--ax-border);
+  border-radius: var(--ax-radius);
 }
 
 /* ---------- Buttons ---------- */
@@ -141,28 +306,26 @@ body.theme-raed footer {
   border-top: 1px solid var(--ax-border);
 }
 
-/* ---------- Home hero glow ---------- */
-body.theme-raed .s-block--hero,
-body.theme-raed .home-slider {
-  position: relative;
+/* ---------- Floating widgets (back-to-top, compare) ---------- */
+body.theme-raed [class*="back-to-top"],
+body.theme-raed .scroll-top,
+body.theme-raed [class*="comparison"] {
+  background: rgba(13, 13, 20, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--ax-border-strong);
+  color: var(--ax-text-2);
 }
 
-body.theme-raed .s-block--hero::before {
-  content: "";
-  position: absolute;
-  top: -180px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 900px;
-  height: 480px;
-  pointer-events: none;
-  background: radial-gradient(
-    closest-side,
-    color-mix(in srgb, var(--color-primary) 22%, transparent),
-    transparent
-  );
-  filter: blur(24px);
-  z-index: 0;
+/* ---------- Lazyload: fade images in gracefully ---------- */
+body.theme-raed img.lazyload,
+body.theme-raed img.lazyloading {
+  opacity: 0;
+}
+
+body.theme-raed img.lazyloaded {
+  opacity: 1;
+  transition: opacity 400ms ease;
 }
 
 /* ---------- Reveal-on-scroll (added by aurix.js) ---------- */
@@ -181,6 +344,11 @@ body.theme-raed .ax-reveal.ax-visible {
   body.theme-raed .ax-reveal {
     opacity: 1;
     transform: none;
+    transition: none;
+  }
+
+  body.theme-raed .s-product-card-entry,
+  body.theme-raed .s-product-card-image img {
     transition: none;
   }
 }
